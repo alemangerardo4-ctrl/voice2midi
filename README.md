@@ -1,72 +1,77 @@
 # Voice2MIDI
 
-Convert your voice or any monophonic audio into MIDI notes in real-time. Perfect for rapid melody sketching and composition.
+A lightweight macOS menu bar tool that converts audio files to MIDI using AI.
 
-## Features
-
-- **Real-Time Conversion** - See MIDI notes as you sing or hum
-- **Multiple Input Modes** - Microphone recording or audio file import
-- **Pitch Detection** - Automatic pitch tracking and quantization
-- **Standard MIDI Export** - Compatible with all DAWs
-
-## Installation
-
-### Standalone App
-
-**macOS:**
-1. Download `Voice2MIDI.dmg` from [Releases](../../releases)
-2. Drag to Applications
-3. Grant microphone permissions when prompted
-
-**Windows:**
-1. Download `Voice2MIDI-Setup.exe` from [Releases](../../releases)
-2. Run installer
-3. Grant microphone permissions
-
-### Plugin (DAW)
-
-**AU (macOS):**
-1. Download `Voice2MIDI.component` from [Releases](../../releases)
-2. Move to `~/Library/Audio/Plug-Ins/Components/`
-3. Rescan plugins in your DAW
-
-**VST3 (macOS/Windows):**
-1. Download `Voice2MIDI.vst3` from [Releases](../../releases)
-2. Move to your VST3 folder
-3. Rescan plugins in your DAW
-
-## Usage
-
-### Standalone
-1. Launch Voice2MIDI
-2. Click record button
-3. Sing or hum your melody
-4. Export MIDI file or copy to clipboard
-
-### Plugin
-1. Load Voice2MIDI on an audio track
-2. Record-enable the track
-3. Sing into your microphone
-4. MIDI notes output to your DAW
-
-## Tips
-
-- Works best with monophonic (single-note) melodies
-- Sing clearly and on-pitch for best results
-- Use headphones to avoid feedback
-- Quantize after recording if needed
-
-## System Requirements
-
-- **macOS:** 11.0+ (AU/VST3/Standalone)
-- **Windows:** 10+ (VST3/Standalone)
-- **RAM:** 2GB minimum
-- **Microphone:** Any USB or built-in mic
-
-## License
-
-Open source - MIT License
+Powered by Spotify's [basic-pitch](https://github.com/spotify/basic-pitch) — drop in an audio file, get a MIDI file on your Desktop.
 
 ---
 
-**Part of [PUBLIC WORKS](https://publicworks.design) - Open source audio tools for creators.**
+## What it does
+
+- Sits in your menu bar (🎵)
+- Click **Convert Audio…** → pick any audio file (WAV, MP3, FLAC, etc.)
+- Runs basic-pitch in the background
+- Saves the resulting `.mid` file to `~/Desktop/midi/` and reveals it in Finder
+
+That's it. No microphone recording, no real-time processing, no AU/VST3 plugins.
+
+---
+
+## Requirements
+
+- macOS 11+
+- Python 3.10+
+
+---
+
+## Install
+
+```bash
+git clone https://github.com/your-org/voice2midi.git
+cd voice2midi
+bash setup_backend.sh
+```
+
+The setup script creates a dedicated Python environment at `~/.voice2midi/venv` and installs all dependencies.
+
+---
+
+## Run
+
+```bash
+~/.voice2midi/venv/bin/python voice2midi.py
+```
+
+The 🎵 icon appears in your menu bar.
+
+---
+
+## Build a standalone .app (optional)
+
+```bash
+~/.voice2midi/venv/bin/pip install py2app
+~/.voice2midi/venv/bin/python setup.py py2app
+# Output: dist/Voice2MIDI.app
+```
+
+---
+
+## How it works
+
+1. You select an audio file via the macOS file picker.
+2. Voice2MIDI calls basic-pitch with the `onnx` model serialization for fast, offline inference.
+3. basic-pitch outputs a standard `.mid` file to `~/Desktop/midi/`.
+
+---
+
+## Notes
+
+- Best results with monophonic audio (single melody line, vocals, single instrument).
+- Polyphonic audio will be transcribed but results vary.
+- First conversion may be slow while the ONNX model loads.
+
+---
+
+## License
+
+MIT — Part of [PUBLIC WORKS](https://publicworks.design), open source audio tools for creators.
