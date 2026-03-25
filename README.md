@@ -20,19 +20,33 @@ That's it. No microphone recording, no real-time processing, no AU/VST3 plugins.
 ## Requirements
 
 - macOS 11+
-- Python 3.10+
+- **Python 3.10 or higher** — macOS ships with Python 3.9 which won't work
+- [Homebrew](https://brew.sh) (recommended for installing Python)
+- ~1.7 GB of free disk space (TensorFlow is ~1 GB)
+
+### Installing Python 3.10+
+
+If you don't have Python 3.10+, install it with Homebrew:
+
+```bash
+brew install python@3.12
+echo 'export PATH="/opt/homebrew/opt/python@3.12/bin:$PATH"' >> ~/.zprofile
+source ~/.zprofile
+```
+
+Or download from [python.org](https://www.python.org/downloads/).
 
 ---
 
 ## Install
 
 ```bash
-git clone https://github.com/your-org/voice2midi.git
+git clone https://github.com/alemangerardo4-ctrl/voice2midi.git
 cd voice2midi
 bash setup_backend.sh
 ```
 
-The setup script creates a dedicated Python environment at `~/.voice2midi/venv` and installs all dependencies.
+The setup script automatically finds the newest Python 3.10+ on your system, creates a dedicated environment at `~/.voice2midi/venv`, and installs all dependencies.
 
 ---
 

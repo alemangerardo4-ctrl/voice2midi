@@ -5,6 +5,7 @@
 # from the top-level namespace. The monkey-patch in voice2midi.py handles
 # environments where a newer scipy is unavoidable, but pinning here keeps
 # fresh installs clean.
+setuptools<72
 basic-pitch
 scipy<1.12
 onnxruntime
