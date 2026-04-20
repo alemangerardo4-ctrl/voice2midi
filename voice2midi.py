@@ -1,4 +1,5 @@
 #!/usr/bin/env python3
+import os
 import rumps
 import subprocess
 import threading
@@ -10,6 +11,8 @@ import tempfile
 logging.basicConfig(level=logging.INFO, format='%(asctime)s %(levelname)s %(message)s')
 logger = logging.getLogger(__name__)
 
+VENV_PYTHON = Path.home() / ".voice2midi" / "venv" / "bin" / "python3"
+
 
 def find_venv_python():
     """Find the venv python to use for basic-pitch conversion.
@@ -18,18 +21,83 @@ def find_venv_python():
     1. Already running inside a venv (sys.prefix != sys.base_prefix)
     2. ~/.voice2midi/venv
     """
-    # 1. Already in a venv
     if sys.prefix != sys.base_prefix:
         py = Path(sys.prefix) / "bin" / "python3"
         if py.exists():
             return py
-
-    # 2. Dedicated venv at ~/.voice2midi/venv
-    dedicated = Path.home() / ".voice2midi" / "venv" / "bin" / "python3"
-    if dedicated.exists():
-        return dedicated
-
+    if VENV_PYTHON.exists():
+        return VENV_PYTHON
     return None
+
+
+def _find_bundle_resource(filename):
+    """Find a resource file in the .app bundle Resources or alongside this script."""
+    resource_path = os.environ.get('RESOURCEPATH')
+    if resource_path:
+        candidate = Path(resource_path) / filename
+        if candidate.exists():
+            return candidate
+    candidate = Path(__file__).parent / filename
+    if candidate.exists():
+        return candidate
+    return None
+
+
+def _osascript(script):
+    return subprocess.run(['osascript', '-e', script], capture_output=True, text=True)
+
+
+def auto_setup_if_needed():
+    """Run first-time backend setup if the venv is missing. Returns False to abort launch."""
+    if find_venv_python():
+        return True
+
+    setup_script = _find_bundle_resource('setup_backend.sh')
+    if not setup_script:
+        _osascript(
+            'display alert "Voice2MIDI \u2014 Setup Required" '
+            'message "The backend setup script was not found inside the app bundle. '
+            'Please re-download Voice2MIDI." '
+            'as critical buttons {"Quit"} default button "Quit"'
+        )
+        return False
+
+    r = _osascript(
+        'button returned of (display dialog '
+        '"Voice2MIDI needs to install its AI backend.\n\n'
+        'This is a one-time setup that downloads about 1.5 GB '
+        'and takes several minutes.\n'
+        'The app will launch automatically when complete.\n\n'
+        'Click Install to begin." '
+        'buttons {"Cancel", "Install"} default button "Install" '
+        'with title "Voice2MIDI \u2014 First-Time Setup")'
+    )
+    if r.returncode != 0 or r.stdout.strip() != 'Install':
+        return False
+
+    _osascript(
+        'display notification "Installing Voice2MIDI backend. This will take several minutes..." '
+        'with title "Voice2MIDI" subtitle "First-time setup in progress"'
+    )
+
+    proc = subprocess.run(['bash', str(setup_script)], capture_output=True, text=True)
+
+    if proc.returncode == 0:
+        _osascript(
+            'display notification "Voice2MIDI is ready to use!" '
+            'with title "Voice2MIDI" subtitle "Setup complete"'
+        )
+        return True
+
+    _osascript(
+        'display alert "Voice2MIDI Setup Failed" '
+        'message "Installation failed.\n\n'
+        'Please ensure Python 3.10+ is installed:\n\n'
+        '    brew install python@3.12\n\n'
+        'Then relaunch Voice2MIDI." '
+        'as critical buttons {"OK"} default button "OK"'
+    )
+    return False
 
 
 class Voice2MIDIApp(rumps.App):
@@ -136,4 +204,6 @@ class Voice2MIDIApp(rumps.App):
 
 
 if __name__ == '__main__':
+    if not auto_setup_if_needed():
+        sys.exit(0)
     Voice2MIDIApp().run()
