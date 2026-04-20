@@ -62,21 +62,8 @@ def auto_setup_if_needed():
         )
         return False
 
-    r = _osascript(
-        'button returned of (display dialog '
-        '"Voice2MIDI needs to install its AI backend.\n\n'
-        'This is a one-time setup that downloads about 1.5 GB '
-        'and takes several minutes.\n'
-        'The app will launch automatically when complete.\n\n'
-        'Click Install to begin." '
-        'buttons {"Cancel", "Install"} default button "Install" '
-        'with title "Voice2MIDI \u2014 First-Time Setup")'
-    )
-    if r.returncode != 0 or r.stdout.strip() != 'Install':
-        return False
-
     _osascript(
-        'display notification "Installing Voice2MIDI backend. This will take several minutes..." '
+        'display notification "Setting up Voice2MIDI\u2026 This takes a few minutes." '
         'with title "Voice2MIDI" subtitle "First-time setup in progress"'
     )
 
@@ -84,7 +71,7 @@ def auto_setup_if_needed():
 
     if proc.returncode == 0:
         _osascript(
-            'display notification "Voice2MIDI is ready to use!" '
+            'display notification "Voice2MIDI is ready!" '
             'with title "Voice2MIDI" subtitle "Setup complete"'
         )
         return True

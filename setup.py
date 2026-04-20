@@ -24,8 +24,8 @@ OPTIONS = {
         'CFBundleName': 'Voice2MIDI',
         'CFBundleDisplayName': 'Voice2MIDI',
         'CFBundleIdentifier': 'design.publicworks.voice2midi',
-        'CFBundleVersion': '2.2.0',
-        'CFBundleShortVersionString': '2.2',
+        'CFBundleVersion': '2.2.1',
+        'CFBundleShortVersionString': '2.2.1',
         'LSUIElement': True,           # Menu bar only — no Dock icon
         'NSHighResolutionCapable': True,
         'NSMicrophoneUsageDescription': 'Voice2MIDI does not use the microphone.',
